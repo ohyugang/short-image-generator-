@@ -12,8 +12,12 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background: #eeeeee;
       font-family: 'Nanum Myeongjo', serif;
       color: #111;
@@ -22,14 +26,17 @@
     .app {
       display: grid;
       grid-template-columns: 390px 1fr;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .panel {
+      height: 100vh;
       background: #ffffff;
       padding: 24px;
       border-right: 1px solid #ddd;
       overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .panel h1 {
@@ -105,6 +112,7 @@
     }
 
     .preview-wrap {
+      height: 100vh;
       padding: 32px;
       display: flex;
       justify-content: center;
@@ -114,7 +122,7 @@
 
     canvas {
       width: 420px;
-      max-width: 100%;
+      max-width: none;
       background: white;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
       cursor: grab;
@@ -142,16 +150,25 @@
     }
 
     @media (max-width: 900px) {
+      html,
+      body {
+        overflow: auto;
+      }
+
       .app {
         grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
       }
 
       .panel {
+        height: auto;
         border-right: 0;
         border-bottom: 1px solid #ddd;
       }
 
       .preview-wrap {
+        height: 80vh;
         padding: 20px;
       }
 
@@ -241,22 +258,6 @@
 
       <div class="row">
         <div class="field">
-          <label for="bodyTopMargin">
-            본문 위 여백: <span id="bodyTopMarginValue">0.7</span>cm
-          </label>
-          <input type="range" id="bodyTopMargin" min="0.2" max="3" step="0.1" value="0.7" />
-        </div>
-
-        <div class="field">
-          <label for="bodyBottomMargin">
-            본문 아래 여백: <span id="bodyBottomMarginValue">1.0</span>cm
-          </label>
-          <input type="range" id="bodyBottomMargin" min="0.2" max="3" step="0.1" value="1.0" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
           <label for="marginType">좌우 여백</label>
           <select id="marginType">
             <option value="0.8">좁게</option>
@@ -319,7 +320,8 @@
       <div class="hint">
         이미지 크기는 A5/A6 중 선택할 수 있어.<br />
         제목 배경 이미지는 상단 3.3cm 영역 안에 자동으로 들어가.<br />
-        본문 위아래 여백을 조절해서 글 위치를 다듬을 수 있어.
+        본문 위아래 여백은 각각 1.2cm로 고정했어.<br />
+        왼쪽 설정창과 오른쪽 미리보기는 따로 스크롤돼.
       </div>
     </aside>
 
@@ -345,6 +347,8 @@
     };
 
     const HEADER_HEIGHT_CM = 3.3;
+    const BODY_TOP_MARGIN_CM = 1.2;
+    const BODY_BOTTOM_MARGIN_CM = 1.2;
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
@@ -365,11 +369,6 @@
 
     const lineSpacingSelect = document.getElementById("lineSpacing");
     const lineSpacingValue = document.getElementById("lineSpacingValue");
-
-    const bodyTopMarginInput = document.getElementById("bodyTopMargin");
-    const bodyTopMarginValue = document.getElementById("bodyTopMarginValue");
-    const bodyBottomMarginInput = document.getElementById("bodyBottomMargin");
-    const bodyBottomMarginValue = document.getElementById("bodyBottomMarginValue");
 
     const marginTypeSelect = document.getElementById("marginType");
     const titleSizeSelect = document.getElementById("titleSize");
@@ -398,6 +397,7 @@
 
     function updateCanvasSize() {
       const selectedSize = PAPER_SIZES[paperSizeSelect.value];
+
       canvasWidth = cmToPx(selectedSize.widthCm);
       canvasHeight = cmToPx(selectedSize.heightCm);
       headerHeight = cmToPx(HEADER_HEIGHT_CM);
@@ -513,6 +513,7 @@
             if (currentY <= bottomLimit) {
               ctx.fillText(line, x, currentY);
             }
+
             line = paragraph[i];
             currentY += lineHeight;
 
@@ -584,11 +585,6 @@
       const lineSpacing = Number(lineSpacingSelect.value);
       lineSpacingValue.textContent = lineSpacing.toFixed(2);
 
-      const bodyTopMarginCm = Number(bodyTopMarginInput.value);
-      const bodyBottomMarginCm = Number(bodyBottomMarginInput.value);
-      bodyTopMarginValue.textContent = bodyTopMarginCm.toFixed(1);
-      bodyBottomMarginValue.textContent = bodyBottomMarginCm.toFixed(1);
-
       const marginCm = Number(marginTypeSelect.value);
       const marginPx = cmToPx(marginCm);
 
@@ -631,10 +627,10 @@
       ctx.font = `700 ${bodyFontSizePx}px 'Nanum Myeongjo', serif`;
 
       const textX = marginPx;
-      const textY = headerHeight + cmToPx(bodyTopMarginCm);
+      const textY = headerHeight + cmToPx(BODY_TOP_MARGIN_CM);
       const maxWidth = canvas.width - marginPx * 2;
       const lineHeight = bodyFontSizePx * lineSpacing;
-      const bottomLimit = canvas.height - cmToPx(bodyBottomMarginCm) - cmToPx(0.8);
+      const bottomLimit = canvas.height - cmToPx(BODY_BOTTOM_MARGIN_CM) - cmToPx(0.8);
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight, bottomLimit);
 
@@ -723,6 +719,7 @@
       const link = document.createElement("a");
       const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
       const selectedPaper = paperSizeSelect.value;
+
       link.download = `${safeTitle}_${selectedPaper}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
@@ -737,8 +734,6 @@
       bgScaleInput,
       fontSizeSelect,
       lineSpacingSelect,
-      bodyTopMarginInput,
-      bodyBottomMarginInput,
       marginTypeSelect,
       titleSizeSelect,
       authorSizeSelect,
