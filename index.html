@@ -72,7 +72,7 @@
     }
 
     textarea {
-      min-height: 220px;
+      min-height: 240px;
       resize: vertical;
       line-height: 1.7;
     }
@@ -111,7 +111,7 @@
     }
 
     canvas {
-      width: 540px;
+      width: 420px;
       max-width: 100%;
       background: white;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
@@ -140,6 +140,11 @@
       .preview-wrap {
         padding: 20px;
       }
+
+      canvas {
+        width: 100%;
+        max-width: 420px;
+      }
     }
   </style>
 </head>
@@ -152,6 +157,11 @@
       <div class="field">
         <label for="title">제목</label>
         <input id="title" value="거짓말쟁이의 시선" />
+      </div>
+
+      <div class="field">
+        <label for="author">작가 이름</label>
+        <input id="author" value="오강유" />
       </div>
 
       <div class="field">
@@ -192,42 +202,75 @@
         <div class="field">
           <label for="marginType">여백</label>
           <select id="marginType">
-            <option value="90">좁게</option>
-            <option value="120" selected>보통</option>
-            <option value="150">넓게</option>
+            <option value="0.8">좁게</option>
+            <option value="1.1" selected>보통</option>
+            <option value="1.4">넓게</option>
           </select>
         </div>
       </div>
 
-      <div class="field">
-        <label for="titleSize">제목 글자 크기</label>
-        <select id="titleSize">
-          <option value="70">작게</option>
-          <option value="82" selected>보통</option>
-          <option value="94">크게</option>
-        </select>
+      <div class="row">
+        <div class="field">
+          <label for="titleSize">제목 글자 크기</label>
+          <select id="titleSize">
+            <option value="20">작게</option>
+            <option value="24" selected>보통</option>
+            <option value="28">크게</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="authorSize">작가 이름 글자 크기</label>
+          <select id="authorSize">
+            <option value="10">작게</option>
+            <option value="12" selected>보통</option>
+            <option value="14">크게</option>
+          </select>
+        </div>
       </div>
 
       <button id="downloadBtn">PNG로 저장하기</button>
       <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
 
       <div class="hint">
-        제목 배경 이미지를 넣지 않으면 기본 회색 조명 배경으로 생성돼.<br />
-        본문 글자 크기는 9pt부터 15pt까지 조정할 수 있어.<br />
-        본문이 너무 길면 글자가 아래로 넘어갈 수 있으니, 단문 기준으로 쓰는 걸 추천!
+        출력 크기는 A6 세로형 기준이야.<br />
+        제목 배경 이미지는 상단 6.6cm 높이 영역에 들어가고, 제목은 그 이미지의 오른쪽 아래에 배치돼.<br />
+        본문 글자 크기는 9pt~15pt까지 조절할 수 있어.
       </div>
     </aside>
 
     <main class="preview-wrap">
-      <canvas id="canvas" width="1080" height="1527"></canvas>
+      <canvas id="canvas"></canvas>
     </main>
   </div>
 
   <script>
+    const DPI = 300;
+
+    function cmToPx(cm) {
+      return Math.round((cm / 2.54) * DPI);
+    }
+
+    function ptToPx(pt) {
+      return (pt / 72) * DPI;
+    }
+
+    const A6_WIDTH_CM = 10.5;
+    const A6_HEIGHT_CM = 14.8;
+    const HEADER_HEIGHT_CM = 6.6;
+
+    const CANVAS_WIDTH = cmToPx(A6_WIDTH_CM);
+    const CANVAS_HEIGHT = cmToPx(A6_HEIGHT_CM);
+    const HEADER_HEIGHT = cmToPx(HEADER_HEIGHT_CM);
+
     const canvas = document.getElementById("canvas");
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+
     const ctx = canvas.getContext("2d");
 
     const titleInput = document.getElementById("title");
+    const authorInput = document.getElementById("author");
     const bodyInput = document.getElementById("bodyText");
     const footerInput = document.getElementById("footer");
     const bgImageInput = document.getElementById("bgImage");
@@ -235,25 +278,11 @@
     const fontSizeValue = document.getElementById("fontSizeValue");
     const marginTypeSelect = document.getElementById("marginType");
     const titleSizeSelect = document.getElementById("titleSize");
+    const authorSizeSelect = document.getElementById("authorSize");
     const downloadBtn = document.getElementById("downloadBtn");
     const resetBgBtn = document.getElementById("resetBgBtn");
 
     let titleBgImage = null;
-
-    function drawRoundedRect(x, y, width, height, radius) {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-      ctx.fill();
-    }
 
     function drawCoverImage(image, x, y, width, height) {
       const imageRatio = image.width / image.height;
@@ -280,22 +309,23 @@
     }
 
     function drawDefaultTitleBackground() {
-      const gradient = ctx.createLinearGradient(0, 0, 0, 330);
-      gradient.addColorStop(0, "#d6d6d6");
-      gradient.addColorStop(0.5, "#f7f7f7");
+      const gradient = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
+      gradient.addColorStop(0, "#dddddd");
+      gradient.addColorStop(0.45, "#f5f5f5");
       gradient.addColorStop(1, "#cfcfcf");
 
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, 330);
+      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
 
-      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-      ctx.fillRect(0, 0, canvas.width, 85);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
 
-      ctx.fillStyle = "rgba(230, 230, 230, 0.8)";
-      ctx.fillRect(0, 300, canvas.width, 30);
-
-      ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
-      drawRoundedRect(120, 80, 840, 170, 30);
+      const overlay = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
+      overlay.addColorStop(0, "rgba(0,0,0,0.0)");
+      overlay.addColorStop(0.6, "rgba(0,0,0,0.1)");
+      overlay.addColorStop(1, "rgba(0,0,0,0.55)");
+      ctx.fillStyle = overlay;
+      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
     }
 
     function wrapText(text, x, y, maxWidth, lineHeight) {
@@ -330,17 +360,43 @@
       return currentY;
     }
 
+    function drawTitleAndAuthor(title, author, titleFontPx, authorFontPx, rightMarginPx, bottomMarginPx) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+
+      ctx.font = `800 ${titleFontPx}px 'Nanum Myeongjo', serif`;
+      const titleY = HEADER_HEIGHT - bottomMarginPx - authorFontPx - ptToPx(6);
+      ctx.fillText(title, canvas.width - rightMarginPx, titleY);
+
+      ctx.font = `700 ${authorFontPx}px 'Nanum Myeongjo', serif`;
+      const authorY = HEADER_HEIGHT - bottomMarginPx;
+      ctx.fillText(author, canvas.width - rightMarginPx, authorY);
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+    }
+
     function draw() {
       const title = titleInput.value || "제목 없음";
+      const author = authorInput.value || "";
       const bodyText = bodyInput.value || "";
       const footer = footerInput.value || "";
 
       const bodyFontSizePt = Number(fontSizeSelect.value);
-      const bodyFontSize = bodyFontSizePt * (96 / 72);
+      const bodyFontSizePx = ptToPx(bodyFontSizePt);
       fontSizeValue.textContent = bodyFontSizePt;
 
-      const margin = Number(marginTypeSelect.value);
-      const titleFontSize = Number(titleSizeSelect.value);
+      const marginCm = Number(marginTypeSelect.value);
+      const marginPx = cmToPx(marginCm);
+
+      const titleFontPx = ptToPx(Number(titleSizeSelect.value));
+      const authorFontPx = ptToPx(Number(authorSizeSelect.value));
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -348,40 +404,47 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (titleBgImage) {
-        drawCoverImage(titleBgImage, 0, 0, canvas.width, 330);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
-        ctx.fillRect(0, 0, canvas.width, 330);
+        drawCoverImage(titleBgImage, 0, 0, canvas.width, HEADER_HEIGHT);
+
+        const overlay = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
+        overlay.addColorStop(0, "rgba(255,255,255,0.10)");
+        overlay.addColorStop(0.55, "rgba(0,0,0,0.05)");
+        overlay.addColorStop(1, "rgba(0,0,0,0.55)");
+        ctx.fillStyle = overlay;
+        ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
       } else {
         drawDefaultTitleBackground();
       }
 
-      ctx.fillStyle = "#000000";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `800 ${titleFontSize}px 'Nanum Myeongjo', serif`;
-      ctx.fillText(title, canvas.width / 2, 200);
+      drawTitleAndAuthor(
+        title,
+        author,
+        titleFontPx,
+        authorFontPx,
+        marginPx,
+        cmToPx(0.45)
+      );
 
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = "#111111";
-      ctx.font = `700 ${bodyFontSize}px 'Nanum Myeongjo', serif`;
+      ctx.font = `700 ${bodyFontSizePx}px 'Nanum Myeongjo', serif`;
 
-      const textX = margin;
-      const textY = 430;
-      const maxWidth = canvas.width - margin * 2;
-      const lineHeight = bodyFontSize * 1.65;
+      const textX = marginPx;
+      const textY = HEADER_HEIGHT + cmToPx(0.7);
+      const maxWidth = canvas.width - marginPx * 2;
+      const lineHeight = bodyFontSizePx * 1.7;
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight);
 
       ctx.textAlign = "center";
-      ctx.font = `700 24px 'Nanum Myeongjo', serif`;
       ctx.fillStyle = "#111111";
-      ctx.fillText(footer, canvas.width / 2, canvas.height - 55);
+      ctx.font = `700 ${ptToPx(10)}px 'Nanum Myeongjo', serif`;
+      ctx.fillText(footer, canvas.width / 2, canvas.height - cmToPx(0.35));
     }
 
     bgImageInput.addEventListener("change", (event) => {
       const file = event.target.files[0];
-
       if (!file) return;
 
       const reader = new FileReader();
@@ -410,18 +473,22 @@
       draw();
 
       const link = document.createElement("a");
-      link.download = `${titleInput.value || "short-image"}.png`;
+      const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
+      link.download = `${safeTitle}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
 
     [
       titleInput,
+      authorInput,
       bodyInput,
       footerInput,
+      bgImageInput,
       fontSizeSelect,
       marginTypeSelect,
-      titleSizeSelect
+      titleSizeSelect,
+      authorSizeSelect
     ].forEach((element) => {
       element.addEventListener("input", draw);
       element.addEventListener("change", draw);
