@@ -66,6 +66,11 @@
       background: #fff;
     }
 
+    input[type="range"] {
+      padding: 0;
+      cursor: pointer;
+    }
+
     textarea {
       min-height: 220px;
       resize: vertical;
@@ -178,12 +183,10 @@
 
       <div class="row">
         <div class="field">
-          <label for="fontSize">본문 글자 크기</label>
-          <select id="fontSize">
-            <option value="34">작게</option>
-            <option value="38" selected>보통</option>
-            <option value="42">크게</option>
-          </select>
+          <label for="fontSize">
+            본문 글자 크기: <span id="fontSizeValue">12</span>pt
+          </label>
+          <input type="range" id="fontSize" min="9" max="15" step="1" value="12" />
         </div>
 
         <div class="field">
@@ -210,6 +213,7 @@
 
       <div class="hint">
         제목 배경 이미지를 넣지 않으면 기본 회색 조명 배경으로 생성돼.<br />
+        본문 글자 크기는 9pt부터 15pt까지 조정할 수 있어.<br />
         본문이 너무 길면 글자가 아래로 넘어갈 수 있으니, 단문 기준으로 쓰는 걸 추천!
       </div>
     </aside>
@@ -228,6 +232,7 @@
     const footerInput = document.getElementById("footer");
     const bgImageInput = document.getElementById("bgImage");
     const fontSizeSelect = document.getElementById("fontSize");
+    const fontSizeValue = document.getElementById("fontSizeValue");
     const marginTypeSelect = document.getElementById("marginType");
     const titleSizeSelect = document.getElementById("titleSize");
     const downloadBtn = document.getElementById("downloadBtn");
@@ -330,7 +335,10 @@
       const bodyText = bodyInput.value || "";
       const footer = footerInput.value || "";
 
-      const bodyFontSize = Number(fontSizeSelect.value);
+      const bodyFontSizePt = Number(fontSizeSelect.value);
+      const bodyFontSize = bodyFontSizePt * (96 / 72);
+      fontSizeValue.textContent = bodyFontSizePt;
+
       const margin = Number(marginTypeSelect.value);
       const titleFontSize = Number(titleSizeSelect.value);
 
