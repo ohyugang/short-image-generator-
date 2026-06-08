@@ -258,12 +258,13 @@
 
       <div class="row">
         <div class="field">
-          <label for="marginType">좌우 여백</label>
-          <select id="marginType">
-            <option value="0.8">좁게</option>
-            <option value="1.1" selected>보통</option>
-            <option value="1.4">넓게</option>
+          <label for="bodyMarginType">본문 여백</label>
+          <select id="bodyMarginType">
+            <option value="narrow">좁게</option>
+            <option value="normal" selected>보통</option>
+            <option value="wide">넓게</option>
           </select>
+          <div class="mini-note">위, 아래, 좌, 우 여백이 함께 조정돼.</div>
         </div>
 
         <div class="field">
@@ -296,32 +297,14 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="field">
-          <label for="titleOffsetX">
-            제목 위치 좌우: <span id="titleOffsetXValue">0</span>px
-          </label>
-          <input type="range" id="titleOffsetX" min="-120" max="120" step="1" value="0" />
-          <div class="mini-note">음수 = 왼쪽 / 양수 = 오른쪽</div>
-        </div>
-
-        <div class="field">
-          <label for="titleOffsetY">
-            제목 위치 상하: <span id="titleOffsetYValue">0</span>px
-          </label>
-          <input type="range" id="titleOffsetY" min="-120" max="120" step="1" value="0" />
-          <div class="mini-note">음수 = 위 / 양수 = 아래</div>
-        </div>
-      </div>
-
       <button id="downloadBtn">PNG로 저장하기</button>
       <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
 
       <div class="hint">
         이미지 크기는 A5/A6 중 선택할 수 있어.<br />
         제목 배경 이미지는 상단 3.3cm 영역 안에 자동으로 들어가.<br />
-        본문 위아래 여백은 각각 1.2cm로 고정했어.<br />
-        왼쪽 설정창과 오른쪽 미리보기는 따로 스크롤돼.
+        본문 여백은 좁게, 보통, 넓게 중 하나를 고르면 위아래좌우가 함께 조정돼.<br />
+        하단 문구는 기존보다 조금 위쪽에 배치했어.
       </div>
     </aside>
 
@@ -346,9 +329,13 @@
       A5: { widthCm: 14.8, heightCm: 21.0 }
     };
 
+    const BODY_MARGINS = {
+      narrow: { topCm: 0.8, rightCm: 0.8, bottomCm: 0.8, leftCm: 0.8 },
+      normal: { topCm: 1.2, rightCm: 1.1, bottomCm: 1.2, leftCm: 1.1 },
+      wide: { topCm: 1.6, rightCm: 1.4, bottomCm: 1.6, leftCm: 1.4 }
+    };
+
     const HEADER_HEIGHT_CM = 3.3;
-    const BODY_TOP_MARGIN_CM = 1.2;
-    const BODY_BOTTOM_MARGIN_CM = 1.2;
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
@@ -370,15 +357,10 @@
     const lineSpacingSelect = document.getElementById("lineSpacing");
     const lineSpacingValue = document.getElementById("lineSpacingValue");
 
-    const marginTypeSelect = document.getElementById("marginType");
+    const bodyMarginTypeSelect = document.getElementById("bodyMarginType");
     const titleSizeSelect = document.getElementById("titleSize");
     const authorSizeSelect = document.getElementById("authorSize");
     const titleAuthorGapSelect = document.getElementById("titleAuthorGap");
-
-    const titleOffsetXInput = document.getElementById("titleOffsetX");
-    const titleOffsetXValue = document.getElementById("titleOffsetXValue");
-    const titleOffsetYInput = document.getElementById("titleOffsetY");
-    const titleOffsetYValue = document.getElementById("titleOffsetYValue");
 
     const downloadBtn = document.getElementById("downloadBtn");
     const resetBgBtn = document.getElementById("resetBgBtn");
@@ -540,12 +522,10 @@
       authorFontPx,
       rightMarginPx,
       bottomMarginPx,
-      gapPx,
-      offsetX,
-      offsetY
+      gapPx
     ) {
-      const baseX = canvas.width - rightMarginPx + offsetX;
-      const authorY = headerHeight - bottomMarginPx + offsetY;
+      const baseX = canvas.width - rightMarginPx;
+      const authorY = headerHeight - bottomMarginPx;
       const titleY = authorY - authorFontPx - gapPx;
 
       ctx.textAlign = "right";
@@ -585,17 +565,15 @@
       const lineSpacing = Number(lineSpacingSelect.value);
       lineSpacingValue.textContent = lineSpacing.toFixed(2);
 
-      const marginCm = Number(marginTypeSelect.value);
-      const marginPx = cmToPx(marginCm);
+      const marginSetting = BODY_MARGINS[bodyMarginTypeSelect.value];
+      const bodyTopMarginPx = cmToPx(marginSetting.topCm);
+      const bodyRightMarginPx = cmToPx(marginSetting.rightCm);
+      const bodyBottomMarginPx = cmToPx(marginSetting.bottomCm);
+      const bodyLeftMarginPx = cmToPx(marginSetting.leftCm);
 
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
       const authorFontPx = ptToPx(Number(authorSizeSelect.value));
       const gapPx = ptToPx(Number(titleAuthorGapSelect.value));
-
-      const titleOffsetX = Number(titleOffsetXInput.value);
-      const titleOffsetY = Number(titleOffsetYInput.value);
-      titleOffsetXValue.textContent = titleOffsetX;
-      titleOffsetYValue.textContent = titleOffsetY;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -614,11 +592,9 @@
         author,
         titleFontPx,
         authorFontPx,
-        marginPx,
+        bodyRightMarginPx,
         cmToPx(0.35),
-        gapPx,
-        titleOffsetX,
-        titleOffsetY
+        gapPx
       );
 
       ctx.textAlign = "left";
@@ -626,18 +602,20 @@
       ctx.fillStyle = "#111111";
       ctx.font = `700 ${bodyFontSizePx}px 'Nanum Myeongjo', serif`;
 
-      const textX = marginPx;
-      const textY = headerHeight + cmToPx(BODY_TOP_MARGIN_CM);
-      const maxWidth = canvas.width - marginPx * 2;
+      const textX = bodyLeftMarginPx;
+      const textY = headerHeight + bodyTopMarginPx;
+      const maxWidth = canvas.width - bodyLeftMarginPx - bodyRightMarginPx;
       const lineHeight = bodyFontSizePx * lineSpacing;
-      const bottomLimit = canvas.height - cmToPx(BODY_BOTTOM_MARGIN_CM) - cmToPx(0.8);
+
+      const footerY = canvas.height - cmToPx(0.75);
+      const bottomLimit = footerY - bodyBottomMarginPx;
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight, bottomLimit);
 
       ctx.textAlign = "center";
       ctx.fillStyle = "#111111";
       ctx.font = `700 ${ptToPx(10)}px 'Nanum Myeongjo', serif`;
-      ctx.fillText(footer, canvas.width / 2, canvas.height - cmToPx(0.35));
+      ctx.fillText(footer, canvas.width / 2, footerY);
     }
 
     bgImageInput.addEventListener("change", (event) => {
@@ -734,12 +712,10 @@
       bgScaleInput,
       fontSizeSelect,
       lineSpacingSelect,
-      marginTypeSelect,
+      bodyMarginTypeSelect,
       titleSizeSelect,
       authorSizeSelect,
-      titleAuthorGapSelect,
-      titleOffsetXInput,
-      titleOffsetYInput
+      titleAuthorGapSelect
     ].forEach((element) => {
       element.addEventListener("input", draw);
       element.addEventListener("change", draw);
