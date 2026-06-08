@@ -198,40 +198,28 @@ body {
 
       <div class="field">
         <label for="title">제목</label>
-        <input id="title" value="거짓말쟁이의 시선" />
+        <input id="title" value=" " />
       </div>
 
       <div class="field">
         <label for="author">작가 이름</label>
-        <input id="author" value="오강유" />
+        <input id="author" value=" " />
       </div>
 
       <div class="field">
         <label for="bodyText">본문</label>
-        <textarea id="bodyText">제인의 눈은 이상하다. 맑다거나 투명하다거나, 그런 말로 끝내기엔 너무 어려운 눈이다. 평범한 귀족 아가씨의 눈이라면 평범한 사람들처럼 포장하면 된다. 하늘을 수놓은 별빛처럼 반짝인다. 순진해 보인다. 거짓말은 아니지만, 진실도 아니다.
-
-그런데 네 눈은 보지 않으려고 하면 더 잘 보인다.
-
-찻잔을 든 손은 단정하고, 허리는 곧고, 고개는 아주 조금 기울어져 있다. 모르는 사람이 보면 얌전한 아가씨라 생각하겠지. 속이려는 의도도 없으면서 사람을 속이는 얼굴.
-
-“해리스 씨?”
-
-부르지 마. 아니, 한 번 더 불러도 괜찮고. 이상하군. 네가 내 이름을 부르면 내가 나를 설명해야 할 것 같다.
-
-벌써 졌네.
-
-나는 네가 아무것도 하지 않는다는 걸 안다. 그냥 보고 있을 뿐이다. 그런데 나는 그 시선 하나에 너무 많은 것을 잃고 있다.</textarea>
+        <textarea id="bodyText"> </textarea>
       </div>
 
       <div class="field">
         <label for="footer">하단 문구</label>
-        <input id="footer" value="〈거짓말쟁이의 시선〉" />
+        <input id="footer" value=" " />
       </div>
 
       <div class="field">
         <label for="bgImage">제목 배경 이미지 넣기</label>
         <input id="bgImage" type="file" accept="image/*" />
-        <div class="mini-note">이미지를 넣은 뒤, 미리보기의 제목 영역을 마우스로 드래그하면 위치를 조정할 수 있어.</div>
+        <div class="mini-note">드래그하여 위치 조정</div>
       </div>
 
       <div class="field">
@@ -267,7 +255,6 @@ body {
             <option value="normal" selected>보통</option>
             <option value="wide">넓게</option>
           </select>
-          <div class="mini-note">위, 아래, 좌, 우 여백이 함께 조정돼.</div>
         </div>
 
         <div class="field">
@@ -302,14 +289,6 @@ body {
 
       <button id="downloadBtn">PNG로 저장하기</button>
       <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
-
-      <div class="hint">
-        이미지 크기는 A5/A6 중 선택할 수 있어.<br />
-        제목 배경 이미지는 상단 3.3cm 영역 안에 자동으로 들어가.<br />
-        본문 여백은 좁게, 보통, 넓게 중 하나를 고르면 위아래좌우가 함께 조정돼.<br />
-        하단 문구는 기존보다 조금 위쪽에 배치했어.
-      </div>
-    </aside>
 
     <main class="preview-wrap">
       <canvas id="canvas"></canvas>
