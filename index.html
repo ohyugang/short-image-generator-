@@ -189,14 +189,6 @@ body {
       <h1>단문 이미지 생성기</h1>
 
       <div class="field">
-        <label for="paperSize">이미지 크기</label>
-        <select id="paperSize">
-          <option value="A6" selected>A6 세로형</option>
-          <option value="A5">A5 세로형</option>
-        </select>
-      </div>
-
-      <div class="field">
         <label for="title">제목</label>
         <input id="title" value=" " />
       </div>
@@ -306,12 +298,10 @@ body {
       return (pt / 72) * DPI;
     }
 
-    const PAPER_SIZES = {
-      A6: { widthCm: 10.5, heightCm: 14.8 },
-      A5: { widthCm: 14.8, heightCm: 21.0 }
-    };
+const PAPER_WIDTH_CM = 10.5 * 1.5;
+const PAPER_HEIGHT_CM = 14.8 * 1.5;
 
-    const BODY_MARGINS = {
+const BODY_MARGINS = {
       narrow: { topCm: 0.8, rightCm: 0.8, bottomCm: 0.8, leftCm: 0.8 },
       normal: { topCm: 1.2, rightCm: 1.1, bottomCm: 1.2, leftCm: 1.1 },
       wide: { topCm: 1.6, rightCm: 1.4, bottomCm: 1.6, leftCm: 1.4 }
@@ -324,7 +314,6 @@ body {
     ctx.imageSmoothingEnabled = true;
 ctx.imageSmoothingQuality = "high";
 
-    const paperSizeSelect = document.getElementById("paperSize");
     const titleInput = document.getElementById("title");
     const authorInput = document.getElementById("author");
     const bodyInput = document.getElementById("bodyText");
@@ -361,22 +350,16 @@ ctx.imageSmoothingQuality = "high";
     let canvasHeight = 0;
     let headerHeight = 0;
 
-    function updateCanvasSize() {
-      const selectedSize = PAPER_SIZES[paperSizeSelect.value];
+  function updateCanvasSize() {
+  canvasWidth = cmToPx(PAPER_WIDTH_CM);
+  canvasHeight = cmToPx(PAPER_HEIGHT_CM);
+  headerHeight = cmToPx(HEADER_HEIGHT_CM);
 
-      canvasWidth = cmToPx(selectedSize.widthCm);
-      canvasHeight = cmToPx(selectedSize.heightCm);
-      headerHeight = cmToPx(HEADER_HEIGHT_CM);
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
 
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
-
-      if (paperSizeSelect.value === "A5") {
-        canvas.style.width = "520px";
-      } else {
-        canvas.style.width = "420px";
-      }
-    }
+  canvas.style.width = "520px";
+}
 
     function getCanvasPoint(event) {
       const rect = canvas.getBoundingClientRect();
@@ -680,15 +663,12 @@ ctx.imageSmoothingQuality = "high";
 
       const link = document.createElement("a");
       const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
-      const selectedPaper = paperSizeSelect.value;
-
-      link.download = `${safeTitle}_${selectedPaper}.png`;
+   link.download = `${safeTitle}_A6x1.5.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
 
     [
-      paperSizeSelect,
       titleInput,
       authorInput,
       bodyInput,
