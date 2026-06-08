@@ -13,18 +13,18 @@
     }
 
     html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #eeeeee;
-  font-family: 'Nanum Myeongjo', serif;
-  color: #111;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: geometricPrecision;
-}
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #eeeeee;
+      font-family: 'Nanum Myeongjo', serif;
+      color: #111;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: geometricPrecision;
+    }
 
     .app {
       display: grid;
@@ -103,6 +103,7 @@ body {
       color: white;
       cursor: pointer;
       font-weight: 800;
+      margin-bottom: 16px;
     }
 
     button:hover {
@@ -111,7 +112,6 @@ body {
 
     .sub-button {
       background: #666;
-      margin-top: 8px;
     }
 
     .preview-wrap {
@@ -124,7 +124,7 @@ body {
     }
 
     canvas {
-      width: 420px;
+      width: 520px;
       max-width: none;
       background: white;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
@@ -133,23 +133,6 @@ body {
 
     canvas:active {
       cursor: grabbing;
-    }
-
-    .hint {
-      font-size: 13px;
-      line-height: 1.6;
-      color: #555;
-      background: #f7f7f7;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 14px;
-    }
-
-    .mini-note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 6px;
-      line-height: 1.5;
     }
 
     @media (max-width: 900px) {
@@ -177,7 +160,7 @@ body {
 
       canvas {
         width: 100%;
-        max-width: 420px;
+        max-width: 520px;
       }
     }
   </style>
@@ -190,29 +173,42 @@ body {
 
       <div class="field">
         <label for="title">제목</label>
-        <input id="title" value=" " />
+        <input id="title" value="거짓말쟁이의 시선" />
       </div>
 
       <div class="field">
         <label for="author">작가 이름</label>
-        <input id="author" value=" " />
+        <input id="author" value="오강유" />
       </div>
 
       <div class="field">
         <label for="bodyText">본문</label>
-        <textarea id="bodyText"> </textarea>
+        <textarea id="bodyText">제인의 눈은 이상하다. 맑다거나 투명하다거나, 그런 말로 끝내기엔 너무 어려운 눈이다. 평범한 귀족 아가씨의 눈이라면 평범한 사람들처럼 포장하면 된다. 하늘을 수놓은 별빛처럼 반짝인다. 순진해 보인다. 거짓말은 아니지만, 진실도 아니다.
+
+그런데 네 눈은 보지 않으려고 하면 더 잘 보인다.
+
+찻잔을 든 손은 단정하고, 허리는 곧고, 고개는 아주 조금 기울어져 있다. 모르는 사람이 보면 얌전한 아가씨라 생각하겠지. 속이려는 의도도 없으면서 사람을 속이는 얼굴.
+
+“해리스 씨?”
+
+부르지 마. 아니, 한 번 더 불러도 괜찮고. 이상하군. 네가 내 이름을 부르면 내가 나를 설명해야 할 것 같다.
+
+벌써 졌네.
+
+나는 네가 아무것도 하지 않는다는 걸 안다. 그냥 보고 있을 뿐이다. 그런데 나는 그 시선 하나에 너무 많은 것을 잃고 있다.</textarea>
       </div>
 
       <div class="field">
         <label for="footer">하단 문구</label>
-        <input id="footer" value=" " />
+        <input id="footer" value="〈거짓말쟁이의 시선〉" />
       </div>
 
       <div class="field">
         <label for="bgImage">제목 배경 이미지 넣기</label>
         <input id="bgImage" type="file" accept="image/*" />
-        <div class="mini-note">드래그하여 위치 조정</div>
       </div>
+
+      <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
 
       <div class="field">
         <label for="bgScale">
@@ -280,7 +276,7 @@ body {
       </div>
 
       <button id="downloadBtn">PNG로 저장하기</button>
-      <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
+    </aside>
 
     <main class="preview-wrap">
       <canvas id="canvas"></canvas>
@@ -298,10 +294,10 @@ body {
       return (pt / 72) * DPI;
     }
 
-const PAPER_WIDTH_CM = 10.5 * 1.5;
-const PAPER_HEIGHT_CM = 14.8 * 1.5;
+    const PAPER_WIDTH_CM = 10.5 * 1.5;
+    const PAPER_HEIGHT_CM = 14.8 * 1.5;
 
-const BODY_MARGINS = {
+    const BODY_MARGINS = {
       narrow: { topCm: 0.8, rightCm: 0.8, bottomCm: 0.8, leftCm: 0.8 },
       normal: { topCm: 1.2, rightCm: 1.1, bottomCm: 1.2, leftCm: 1.1 },
       wide: { topCm: 1.6, rightCm: 1.4, bottomCm: 1.6, leftCm: 1.4 }
@@ -311,8 +307,9 @@ const BODY_MARGINS = {
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
+
     ctx.imageSmoothingEnabled = true;
-ctx.imageSmoothingQuality = "high";
+    ctx.imageSmoothingQuality = "high";
 
     const titleInput = document.getElementById("title");
     const authorInput = document.getElementById("author");
@@ -350,16 +347,16 @@ ctx.imageSmoothingQuality = "high";
     let canvasHeight = 0;
     let headerHeight = 0;
 
-  function updateCanvasSize() {
-  canvasWidth = cmToPx(PAPER_WIDTH_CM);
-  canvasHeight = cmToPx(PAPER_HEIGHT_CM);
-  headerHeight = cmToPx(HEADER_HEIGHT_CM);
+    function updateCanvasSize() {
+      canvasWidth = cmToPx(PAPER_WIDTH_CM);
+      canvasHeight = cmToPx(PAPER_HEIGHT_CM);
+      headerHeight = cmToPx(HEADER_HEIGHT_CM);
 
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
 
-  canvas.style.width = "520px";
-}
+      canvas.style.width = "520px";
+    }
 
     function getCanvasPoint(event) {
       const rect = canvas.getBoundingClientRect();
@@ -518,6 +515,9 @@ ctx.imageSmoothingQuality = "high";
     function draw() {
       updateCanvasSize();
 
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+
       const title = titleInput.value || "제목 없음";
       const author = authorInput.value || "";
       const bodyText = bodyInput.value || "";
@@ -579,10 +579,10 @@ ctx.imageSmoothingQuality = "high";
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight, bottomLimit);
 
-     ctx.textAlign = "center";
-     ctx.fillStyle = "#777777";
-     ctx.font = `700 ${ptToPx(8)}px 'Nanum Myeongjo', serif`;
-     ctx.fillText(footer, canvas.width / 2, footerY);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#777777";
+      ctx.font = `700 ${ptToPx(8)}px 'Nanum Myeongjo', serif`;
+      ctx.fillText(footer, canvas.width / 2, footerY);
     }
 
     bgImageInput.addEventListener("change", (event) => {
@@ -663,7 +663,8 @@ ctx.imageSmoothingQuality = "high";
 
       const link = document.createElement("a");
       const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
-   link.download = `${safeTitle}_A6x1.5.png`;
+
+      link.download = `${safeTitle}_A6x1.5.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
