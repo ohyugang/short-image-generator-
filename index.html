@@ -13,15 +13,18 @@
     }
 
     html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #eeeeee;
-      font-family: 'Nanum Myeongjo', serif;
-      color: #111;
-    }
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #eeeeee;
+  font-family: 'Nanum Myeongjo', serif;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
 
     .app {
       display: grid;
@@ -339,6 +342,8 @@
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = "high";
 
     const paperSizeSelect = document.getElementById("paperSize");
     const titleInput = document.getElementById("title");
@@ -612,10 +617,10 @@
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight, bottomLimit);
 
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#111111";
-      ctx.font = `700 ${ptToPx(10)}px 'Nanum Myeongjo', serif`;
-      ctx.fillText(footer, canvas.width / 2, footerY);
+     ctx.textAlign = "center";
+     ctx.fillStyle = "#777777";
+     ctx.font = `700 ${ptToPx(8)}px 'Nanum Myeongjo', serif`;
+     ctx.fillText(footer, canvas.width / 2, footerY);
     }
 
     bgImageInput.addEventListener("change", (event) => {
