@@ -21,7 +21,7 @@
 
     .app {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 390px 1fr;
       min-height: 100vh;
     }
 
@@ -169,29 +169,65 @@
       <h1>단문 이미지 생성기</h1>
 
       <div class="field">
+        <label for="pageSize">이미지 크기</label>
+        <select id="pageSize">
+          <option value="A6" selected>A6 세로형</option>
+          <option value="A5">A5 세로형</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="topMargin">
+            위 여백: <span id="topMarginValue">0.5</span>cm
+          </label>
+          <input type="range" id="topMargin" min="0" max="2.5" step="0.1" value="0.5" />
+        </div>
+
+        <div class="field">
+          <label for="bottomMargin">
+            아래 여백: <span id="bottomMarginValue">0.5</span>cm
+          </label>
+          <input type="range" id="bottomMargin" min="0" max="2.5" step="0.1" value="0.5" />
+        </div>
+      </div>
+
+      <div class="field">
         <label for="title">제목</label>
-        <input id="title" value=" " />
+        <input id="title" value="거짓말쟁이의 시선" />
       </div>
 
       <div class="field">
         <label for="author">작가 이름</label>
-        <input id="author" value=" " />
+        <input id="author" value="오강유" />
       </div>
 
       <div class="field">
         <label for="bodyText">본문</label>
-        <textarea id="bodyText"> </textarea>
+        <textarea id="bodyText">제인의 눈은 이상하다. 맑다거나 투명하다거나, 그런 말로 끝내기엔 너무 어려운 눈이다. 평범한 귀족 아가씨의 눈이라면 평범한 사람들처럼 포장하면 된다. 하늘을 수놓은 별빛처럼 반짝인다. 순진해 보인다. 거짓말은 아니지만, 진실도 아니다.
+
+그런데 네 눈은 보지 않으려고 하면 더 잘 보인다.
+
+찻잔을 든 손은 단정하고, 허리는 곧고, 고개는 아주 조금 기울어져 있다. 모르는 사람이 보면 얌전한 아가씨라 생각하겠지. 속이려는 의도도 없으면서 사람을 속이는 얼굴.
+
+“해리스 씨?”
+
+부르지 마. 아니, 한 번 더 불러도 괜찮고. 이상하군. 네가 내 이름을 부르면 내가 나를 설명해야 할 것 같다.
+
+벌써 졌네.
+
+나는 네가 아무것도 하지 않는다는 걸 안다. 그냥 보고 있을 뿐이다. 그런데 나는 그 시선 하나에 너무 많은 것을 잃고 있다.</textarea>
       </div>
 
       <div class="field">
         <label for="footer">하단 문구</label>
-        <input id="footer" value=" " />
+        <input id="footer" value="〈거짓말쟁이의 시선〉" />
       </div>
 
       <div class="field">
         <label for="bgImage">제목 배경 이미지 넣기</label>
         <input id="bgImage" type="file" accept="image/*" />
-        <div class="mini-note">이미지를 넣은 뒤, 미리보기의 제목 영역을 마우스로 드래그하면 위치를 조정할 수 있어요.</div>
+        <div class="mini-note">이미지를 넣은 뒤, 미리보기의 제목 영역을 마우스로 드래그하면 위치를 조정할 수 있어.</div>
       </div>
 
       <div class="field">
@@ -221,8 +257,8 @@
 
       <div class="row">
         <div class="field">
-          <label for="marginType">여백</label>
-          <select id="marginType">
+          <label for="sideMargin">좌우 여백</label>
+          <select id="sideMargin">
             <option value="0.8">좁게</option>
             <option value="1.1" selected>보통</option>
             <option value="1.4">넓게</option>
@@ -249,6 +285,15 @@
           </select>
         </div>
 
+        <div class="field">
+          <label for="titleAuthorGap">제목-작가 간격</label>
+          <select id="titleAuthorGap">
+            <option value="3">좁게</option>
+            <option value="6" selected>보통</option>
+            <option value="10">넓게</option>
+          </select>
+        </div>
+      </div>
 
       <div class="row">
         <div class="field">
@@ -256,6 +301,7 @@
             제목 위치 좌우: <span id="titleOffsetXValue">0</span>px
           </label>
           <input type="range" id="titleOffsetX" min="-120" max="120" step="1" value="0" />
+          <div class="mini-note">음수 = 왼쪽 / 양수 = 오른쪽</div>
         </div>
 
         <div class="field">
@@ -263,6 +309,7 @@
             제목 위치 상하: <span id="titleOffsetYValue">0</span>px
           </label>
           <input type="range" id="titleOffsetY" min="-120" max="120" step="1" value="0" />
+          <div class="mini-note">음수 = 위 / 양수 = 아래</div>
         </div>
       </div>
 
@@ -270,8 +317,9 @@
       <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
 
       <div class="hint">
-        A6 세로형 기준.<br />
-        배경 이미지는 미리보기에서 드래그로 위치 조정, 슬라이더로 확대/축소할 수 있어요.
+        이미지 크기는 A5/A6 중 선택할 수 있어.<br />
+        제목 배경 이미지는 위 여백 아래에 있는 3.3cm 제목 영역 안에 들어가.<br />
+        위 여백과 아래 여백을 조절하면 출력 이미지 안쪽에 흰 여백이 생겨.
       </div>
     </aside>
 
@@ -291,19 +339,25 @@
       return (pt / 72) * DPI;
     }
 
-    const A6_WIDTH_CM = 10.5;
-    const A6_HEIGHT_CM = 14.8;
-    const HEADER_HEIGHT_CM = 3.3;
+    const PAGE_SIZES = {
+      A6: { widthCm: 10.5, heightCm: 14.8, previewWidth: 420 },
+      A5: { widthCm: 14.8, heightCm: 21.0, previewWidth: 500 }
+    };
 
-    const CANVAS_WIDTH = cmToPx(A6_WIDTH_CM);
-    const CANVAS_HEIGHT = cmToPx(A6_HEIGHT_CM);
+    const HEADER_HEIGHT_CM = 3.3;
     const HEADER_HEIGHT = cmToPx(HEADER_HEIGHT_CM);
 
-    const canvas = document.getElementById("canvas");
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
+    let CANVAS_WIDTH = cmToPx(PAGE_SIZES.A6.widthCm);
+    let CANVAS_HEIGHT = cmToPx(PAGE_SIZES.A6.heightCm);
 
+    const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
+
+    const pageSizeSelect = document.getElementById("pageSize");
+    const topMarginInput = document.getElementById("topMargin");
+    const topMarginValue = document.getElementById("topMarginValue");
+    const bottomMarginInput = document.getElementById("bottomMargin");
+    const bottomMarginValue = document.getElementById("bottomMarginValue");
 
     const titleInput = document.getElementById("title");
     const authorInput = document.getElementById("author");
@@ -321,7 +375,7 @@
     const lineSpacingSelect = document.getElementById("lineSpacing");
     const lineSpacingValue = document.getElementById("lineSpacingValue");
 
-    const marginTypeSelect = document.getElementById("marginType");
+    const sideMarginSelect = document.getElementById("sideMargin");
     const titleSizeSelect = document.getElementById("titleSize");
     const authorSizeSelect = document.getElementById("authorSize");
     const titleAuthorGapSelect = document.getElementById("titleAuthorGap");
@@ -341,6 +395,29 @@
     let isDraggingBg = false;
     let lastMouseX = 0;
     let lastMouseY = 0;
+
+    function updateCanvasSize() {
+      const selectedSize = PAGE_SIZES[pageSizeSelect.value];
+
+      CANVAS_WIDTH = cmToPx(selectedSize.widthCm);
+      CANVAS_HEIGHT = cmToPx(selectedSize.heightCm);
+
+      canvas.width = CANVAS_WIDTH;
+      canvas.height = CANVAS_HEIGHT;
+      canvas.style.width = selectedSize.previewWidth + "px";
+    }
+
+    function getTopMarginPx() {
+      return cmToPx(Number(topMarginInput.value));
+    }
+
+    function getBottomMarginPx() {
+      return cmToPx(Number(bottomMarginInput.value));
+    }
+
+    function getHeaderY() {
+      return getTopMarginPx();
+    }
 
     function getCanvasPoint(event) {
       const rect = canvas.getBoundingClientRect();
@@ -371,7 +448,7 @@
       return { drawWidth, drawHeight };
     }
 
-    function drawHeaderImage(image) {
+    function drawHeaderImage(image, headerY) {
       const scale = Number(bgScaleInput.value) / 100;
       const base = getCoverImageBaseSize(image, canvas.width, HEADER_HEIGHT);
 
@@ -379,12 +456,12 @@
       const drawHeight = base.drawHeight * scale;
 
       const drawX = (canvas.width - drawWidth) / 2 + bgOffsetX;
-      const drawY = (HEADER_HEIGHT - drawHeight) / 2 + bgOffsetY;
+      const drawY = headerY + (HEADER_HEIGHT - drawHeight) / 2 + bgOffsetY;
 
       ctx.save();
 
       ctx.beginPath();
-      ctx.rect(0, 0, canvas.width, HEADER_HEIGHT);
+      ctx.rect(0, headerY, canvas.width, HEADER_HEIGHT);
       ctx.clip();
 
       ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
@@ -392,24 +469,33 @@
       ctx.restore();
     }
 
-    function drawDefaultTitleBackground() {
-      const gradient = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
+    function drawDefaultTitleBackground(headerY) {
+      const gradient = ctx.createLinearGradient(0, headerY, 0, headerY + HEADER_HEIGHT);
       gradient.addColorStop(0, "#dddddd");
       gradient.addColorStop(0.45, "#f5f5f5");
       gradient.addColorStop(1, "#cfcfcf");
 
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
+      ctx.fillRect(0, headerY, canvas.width, HEADER_HEIGHT);
 
       ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
+      ctx.fillRect(0, headerY, canvas.width, HEADER_HEIGHT);
 
-      const overlay = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
+      const overlay = ctx.createLinearGradient(0, headerY, 0, headerY + HEADER_HEIGHT);
       overlay.addColorStop(0, "rgba(0,0,0,0.0)");
       overlay.addColorStop(0.6, "rgba(0,0,0,0.1)");
       overlay.addColorStop(1, "rgba(0,0,0,0.55)");
       ctx.fillStyle = overlay;
-      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
+      ctx.fillRect(0, headerY, canvas.width, HEADER_HEIGHT);
+    }
+
+    function drawHeaderOverlay(headerY) {
+      const overlay = ctx.createLinearGradient(0, headerY, 0, headerY + HEADER_HEIGHT);
+      overlay.addColorStop(0, "rgba(255,255,255,0.08)");
+      overlay.addColorStop(0.45, "rgba(0,0,0,0.02)");
+      overlay.addColorStop(1, "rgba(0,0,0,0.55)");
+      ctx.fillStyle = overlay;
+      ctx.fillRect(0, headerY, canvas.width, HEADER_HEIGHT);
     }
 
     function wrapText(text, x, y, maxWidth, lineHeight) {
@@ -453,10 +539,11 @@
       bottomMarginPx,
       gapPx,
       offsetX,
-      offsetY
+      offsetY,
+      headerY
     ) {
       const baseX = canvas.width - rightMarginPx + offsetX;
-      const authorY = HEADER_HEIGHT - bottomMarginPx + offsetY;
+      const authorY = headerY + HEADER_HEIGHT - bottomMarginPx + offsetY;
       const titleY = authorY - authorFontPx - gapPx;
 
       ctx.textAlign = "right";
@@ -479,22 +566,20 @@
       ctx.shadowOffsetY = 0;
     }
 
-    function drawHeaderOverlay() {
-      const overlay = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
-      overlay.addColorStop(0, "rgba(255,255,255,0.08)");
-      overlay.addColorStop(0.45, "rgba(0,0,0,0.02)");
-      overlay.addColorStop(1, "rgba(0,0,0,0.55)");
-      ctx.fillStyle = overlay;
-      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
-    }
-
     function draw() {
+      updateCanvasSize();
+
       const title = titleInput.value || "제목 없음";
       const author = authorInput.value || "";
       const bodyText = bodyInput.value || "";
       const footer = footerInput.value || "";
 
+      topMarginValue.textContent = Number(topMarginInput.value).toFixed(1);
+      bottomMarginValue.textContent = Number(bottomMarginInput.value).toFixed(1);
       bgScaleValue.textContent = bgScaleInput.value;
+
+      const headerY = getHeaderY();
+      const bottomMarginPx = getBottomMarginPx();
 
       const bodyFontSizePt = Number(fontSizeSelect.value);
       const bodyFontSizePx = ptToPx(bodyFontSizePt);
@@ -503,8 +588,8 @@
       const lineSpacing = Number(lineSpacingSelect.value);
       lineSpacingValue.textContent = lineSpacing.toFixed(2);
 
-      const marginCm = Number(marginTypeSelect.value);
-      const marginPx = cmToPx(marginCm);
+      const sideMarginCm = Number(sideMarginSelect.value);
+      const sideMarginPx = cmToPx(sideMarginCm);
 
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
       const authorFontPx = ptToPx(Number(authorSizeSelect.value));
@@ -521,10 +606,10 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (titleBgImage) {
-        drawHeaderImage(titleBgImage);
-        drawHeaderOverlay();
+        drawHeaderImage(titleBgImage, headerY);
+        drawHeaderOverlay(headerY);
       } else {
-        drawDefaultTitleBackground();
+        drawDefaultTitleBackground(headerY);
       }
 
       drawTitleAndAuthor(
@@ -532,11 +617,12 @@
         author,
         titleFontPx,
         authorFontPx,
-        marginPx,
+        sideMarginPx,
         cmToPx(0.35),
         gapPx,
         titleOffsetX,
-        titleOffsetY
+        titleOffsetY,
+        headerY
       );
 
       ctx.textAlign = "left";
@@ -544,9 +630,9 @@
       ctx.fillStyle = "#111111";
       ctx.font = `700 ${bodyFontSizePx}px 'Nanum Myeongjo', serif`;
 
-      const textX = marginPx;
-      const textY = HEADER_HEIGHT + cmToPx(0.7);
-      const maxWidth = canvas.width - marginPx * 2;
+      const textX = sideMarginPx;
+      const textY = headerY + HEADER_HEIGHT + cmToPx(0.7);
+      const maxWidth = canvas.width - sideMarginPx * 2;
       const lineHeight = bodyFontSizePx * lineSpacing;
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight);
@@ -554,7 +640,7 @@
       ctx.textAlign = "center";
       ctx.fillStyle = "#111111";
       ctx.font = `700 ${ptToPx(10)}px 'Nanum Myeongjo', serif`;
-      ctx.fillText(footer, canvas.width / 2, canvas.height - cmToPx(0.35));
+      ctx.fillText(footer, canvas.width / 2, canvas.height - bottomMarginPx - cmToPx(0.15));
     }
 
     bgImageInput.addEventListener("change", (event) => {
@@ -584,8 +670,9 @@
       if (!titleBgImage) return;
 
       const point = getCanvasPoint(event);
+      const headerY = getHeaderY();
 
-      if (point.y <= HEADER_HEIGHT) {
+      if (point.y >= headerY && point.y <= headerY + HEADER_HEIGHT) {
         isDraggingBg = true;
         lastMouseX = point.x;
         lastMouseY = point.y;
@@ -635,12 +722,17 @@
 
       const link = document.createElement("a");
       const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
-      link.download = `${safeTitle}.png`;
+      const pageSize = pageSizeSelect.value;
+
+      link.download = `${safeTitle}_${pageSize}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
 
     [
+      pageSizeSelect,
+      topMarginInput,
+      bottomMarginInput,
       titleInput,
       authorInput,
       bodyInput,
@@ -648,7 +740,7 @@
       bgScaleInput,
       fontSizeSelect,
       lineSpacingSelect,
-      marginTypeSelect,
+      sideMarginSelect,
       titleSizeSelect,
       authorSizeSelect,
       titleAuthorGapSelect,
