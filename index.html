@@ -117,6 +117,11 @@
       max-width: 100%;
       background: white;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+      cursor: grab;
+    }
+
+    canvas:active {
+      cursor: grabbing;
     }
 
     .hint {
@@ -165,28 +170,50 @@
 
       <div class="field">
         <label for="title">제목</label>
-        <input id="title" value=" " />
+        <input id="title" value="거짓말쟁이의 시선" />
       </div>
 
       <div class="field">
         <label for="author">작가 이름</label>
-        <input id="author" value=" " />
+        <input id="author" value="오강유" />
       </div>
 
       <div class="field">
         <label for="bodyText">본문</label>
-        <textarea id="bodyText"></textarea>
+        <textarea id="bodyText">제인의 눈은 이상하다. 맑다거나 투명하다거나, 그런 말로 끝내기엔 너무 어려운 눈이다. 평범한 귀족 아가씨의 눈이라면 평범한 사람들처럼 포장하면 된다. 하늘을 수놓은 별빛처럼 반짝인다. 순진해 보인다. 거짓말은 아니지만, 진실도 아니다.
+
+그런데 네 눈은 보지 않으려고 하면 더 잘 보인다.
+
+찻잔을 든 손은 단정하고, 허리는 곧고, 고개는 아주 조금 기울어져 있다. 모르는 사람이 보면 얌전한 아가씨라 생각하겠지. 속이려는 의도도 없으면서 사람을 속이는 얼굴.
+
+“해리스 씨?”
+
+부르지 마. 아니, 한 번 더 불러도 괜찮고. 이상하군. 네가 내 이름을 부르면 내가 나를 설명해야 할 것 같다.
+
+벌써 졌네.
+
+나는 네가 아무것도 하지 않는다는 걸 안다. 그냥 보고 있을 뿐이다. 그런데 나는 그 시선 하나에 너무 많은 것을 잃고 있다.</textarea>
       </div>
 
       <div class="field">
         <label for="footer">하단 문구</label>
-        <input id="footer" value="〈 〉" />
+        <input id="footer" value="〈거짓말쟁이의 시선〉" />
       </div>
 
       <div class="field">
         <label for="bgImage">제목 배경 이미지 넣기</label>
         <input id="bgImage" type="file" accept="image/*" />
+        <div class="mini-note">이미지를 넣은 뒤, 미리보기의 제목 영역을 마우스로 드래그하면 위치를 조정할 수 있어.</div>
       </div>
+
+      <div class="field">
+        <label for="bgScale">
+          제목 배경 이미지 확대/축소: <span id="bgScaleValue">100</span>%
+        </label>
+        <input type="range" id="bgScale" min="50" max="250" step="1" value="100" />
+      </div>
+
+      <button class="sub-button" id="resetBgPositionBtn">배경 이미지 위치 초기화</button>
 
       <div class="row">
         <div class="field">
@@ -266,8 +293,9 @@
       <button class="sub-button" id="resetBgBtn">배경 이미지 삭제</button>
 
       <div class="hint">
-        A6 세로형.<br />
-      
+        출력 크기는 A6 세로형 기준이야.<br />
+        제목 배경 이미지는 상단 3.3cm 높이 영역 안에 자동으로 들어가.<br />
+        배경 이미지는 미리보기에서 드래그로 위치 조정, 슬라이더로 확대/축소할 수 있어.
       </div>
     </aside>
 
@@ -307,6 +335,10 @@
     const footerInput = document.getElementById("footer");
     const bgImageInput = document.getElementById("bgImage");
 
+    const bgScaleInput = document.getElementById("bgScale");
+    const bgScaleValue = document.getElementById("bgScaleValue");
+    const resetBgPositionBtn = document.getElementById("resetBgPositionBtn");
+
     const fontSizeSelect = document.getElementById("fontSize");
     const fontSizeValue = document.getElementById("fontSizeValue");
 
@@ -328,28 +360,60 @@
 
     let titleBgImage = null;
 
-    function drawCoverImage(image, x, y, width, height) {
+    let bgOffsetX = 0;
+    let bgOffsetY = 0;
+    let isDraggingBg = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    function getCanvasPoint(event) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      return {
+        x: (event.clientX - rect.left) * scaleX,
+        y: (event.clientY - rect.top) * scaleY
+      };
+    }
+
+    function getCoverImageBaseSize(image, width, height) {
       const imageRatio = image.width / image.height;
       const boxRatio = width / height;
 
       let drawWidth;
       let drawHeight;
-      let drawX;
-      let drawY;
 
       if (imageRatio > boxRatio) {
         drawHeight = height;
         drawWidth = height * imageRatio;
-        drawX = x - (drawWidth - width) / 2;
-        drawY = y;
       } else {
         drawWidth = width;
         drawHeight = width / imageRatio;
-        drawX = x;
-        drawY = y - (drawHeight - height) / 2;
       }
 
+      return { drawWidth, drawHeight };
+    }
+
+    function drawHeaderImage(image) {
+      const scale = Number(bgScaleInput.value) / 100;
+      const base = getCoverImageBaseSize(image, canvas.width, HEADER_HEIGHT);
+
+      const drawWidth = base.drawWidth * scale;
+      const drawHeight = base.drawHeight * scale;
+
+      const drawX = (canvas.width - drawWidth) / 2 + bgOffsetX;
+      const drawY = (HEADER_HEIGHT - drawHeight) / 2 + bgOffsetY;
+
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.rect(0, 0, canvas.width, HEADER_HEIGHT);
+      ctx.clip();
+
       ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+
+      ctx.restore();
     }
 
     function drawDefaultTitleBackground() {
@@ -439,11 +503,22 @@
       ctx.shadowOffsetY = 0;
     }
 
+    function drawHeaderOverlay() {
+      const overlay = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
+      overlay.addColorStop(0, "rgba(255,255,255,0.08)");
+      overlay.addColorStop(0.45, "rgba(0,0,0,0.02)");
+      overlay.addColorStop(1, "rgba(0,0,0,0.55)");
+      ctx.fillStyle = overlay;
+      ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
+    }
+
     function draw() {
       const title = titleInput.value || "제목 없음";
       const author = authorInput.value || "";
       const bodyText = bodyInput.value || "";
       const footer = footerInput.value || "";
+
+      bgScaleValue.textContent = bgScaleInput.value;
 
       const bodyFontSizePt = Number(fontSizeSelect.value);
       const bodyFontSizePx = ptToPx(bodyFontSizePt);
@@ -470,14 +545,8 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (titleBgImage) {
-        drawCoverImage(titleBgImage, 0, 0, canvas.width, HEADER_HEIGHT);
-
-        const overlay = ctx.createLinearGradient(0, 0, 0, HEADER_HEIGHT);
-        overlay.addColorStop(0, "rgba(255,255,255,0.10)");
-        overlay.addColorStop(0.55, "rgba(0,0,0,0.05)");
-        overlay.addColorStop(1, "rgba(0,0,0,0.55)");
-        ctx.fillStyle = overlay;
-        ctx.fillRect(0, 0, canvas.width, HEADER_HEIGHT);
+        drawHeaderImage(titleBgImage);
+        drawHeaderOverlay();
       } else {
         drawDefaultTitleBackground();
       }
@@ -488,7 +557,7 @@
         titleFontPx,
         authorFontPx,
         marginPx,
-        cmToPx(0.45),
+        cmToPx(0.35),
         gapPx,
         titleOffsetX,
         titleOffsetY
@@ -523,6 +592,9 @@
 
         img.onload = () => {
           titleBgImage = img;
+          bgOffsetX = 0;
+          bgOffsetY = 0;
+          bgScaleInput.value = 100;
           draw();
         };
 
@@ -532,9 +604,53 @@
       reader.readAsDataURL(file);
     });
 
+    canvas.addEventListener("mousedown", (event) => {
+      if (!titleBgImage) return;
+
+      const point = getCanvasPoint(event);
+
+      if (point.y <= HEADER_HEIGHT) {
+        isDraggingBg = true;
+        lastMouseX = point.x;
+        lastMouseY = point.y;
+      }
+    });
+
+    window.addEventListener("mousemove", (event) => {
+      if (!isDraggingBg) return;
+
+      const point = getCanvasPoint(event);
+
+      bgOffsetX += point.x - lastMouseX;
+      bgOffsetY += point.y - lastMouseY;
+
+      lastMouseX = point.x;
+      lastMouseY = point.y;
+
+      draw();
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDraggingBg = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      isDraggingBg = false;
+    });
+
+    resetBgPositionBtn.addEventListener("click", () => {
+      bgOffsetX = 0;
+      bgOffsetY = 0;
+      bgScaleInput.value = 100;
+      draw();
+    });
+
     resetBgBtn.addEventListener("click", () => {
       titleBgImage = null;
       bgImageInput.value = "";
+      bgOffsetX = 0;
+      bgOffsetY = 0;
+      bgScaleInput.value = 100;
       draw();
     });
 
@@ -553,6 +669,7 @@
       authorInput,
       bodyInput,
       footerInput,
+      bgScaleInput,
       fontSizeSelect,
       lineSpacingSelect,
       marginTypeSelect,
