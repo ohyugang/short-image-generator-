@@ -21,7 +21,7 @@
 
     .app {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 380px 1fr;
       min-height: 100vh;
     }
 
@@ -69,6 +69,8 @@
     input[type="range"] {
       padding: 0;
       cursor: pointer;
+      border: none;
+      background: transparent;
     }
 
     textarea {
@@ -125,6 +127,13 @@
       padding: 12px;
       border-radius: 8px;
       margin-top: 14px;
+    }
+
+    .mini-note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+      line-height: 1.5;
     }
 
     @media (max-width: 900px) {
@@ -200,6 +209,15 @@
         </div>
 
         <div class="field">
+          <label for="lineSpacing">
+            줄 간격: <span id="lineSpacingValue">1.70</span>
+          </label>
+          <input type="range" id="lineSpacing" min="1.3" max="2.2" step="0.05" value="1.7" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
           <label for="marginType">여백</label>
           <select id="marginType">
             <option value="0.8">좁게</option>
@@ -207,9 +225,7 @@
             <option value="1.4">넓게</option>
           </select>
         </div>
-      </div>
 
-      <div class="row">
         <div class="field">
           <label for="titleSize">제목 글자 크기</label>
           <select id="titleSize">
@@ -218,7 +234,9 @@
             <option value="28">크게</option>
           </select>
         </div>
+      </div>
 
+      <div class="row">
         <div class="field">
           <label for="authorSize">작가 이름 글자 크기</label>
           <select id="authorSize">
@@ -227,6 +245,33 @@
             <option value="14">크게</option>
           </select>
         </div>
+
+        <div class="field">
+          <label for="titleAuthorGap">제목-작가 간격</label>
+          <select id="titleAuthorGap">
+            <option value="3">좁게</option>
+            <option value="6" selected>보통</option>
+            <option value="10">넓게</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="titleOffsetX">
+            제목 위치 좌우: <span id="titleOffsetXValue">0</span>px
+          </label>
+          <input type="range" id="titleOffsetX" min="-120" max="120" step="1" value="0" />
+          <div class="mini-note">음수 = 왼쪽 / 양수 = 오른쪽</div>
+        </div>
+
+        <div class="field">
+          <label for="titleOffsetY">
+            제목 위치 상하: <span id="titleOffsetYValue">0</span>px
+          </label>
+          <input type="range" id="titleOffsetY" min="-120" max="120" step="1" value="0" />
+          <div class="mini-note">음수 = 위 / 양수 = 아래</div>
+        </div>
       </div>
 
       <button id="downloadBtn">PNG로 저장하기</button>
@@ -234,8 +279,8 @@
 
       <div class="hint">
         출력 크기는 A6 세로형 기준이야.<br />
-        제목 배경 이미지는 상단 6.6cm 높이 영역에 들어가고, 제목은 그 이미지의 오른쪽 아래에 배치돼.<br />
-        본문 글자 크기는 9pt~15pt까지 조절할 수 있어.
+        제목 배경 이미지는 상단 6.6cm 높이 영역에 들어가고, 제목은 기본적으로 오른쪽 아래에 배치돼.<br />
+        슬라이더로 줄 간격과 제목 위치를 바로 조절할 수 있어.
       </div>
     </aside>
 
@@ -274,11 +319,23 @@
     const bodyInput = document.getElementById("bodyText");
     const footerInput = document.getElementById("footer");
     const bgImageInput = document.getElementById("bgImage");
+
     const fontSizeSelect = document.getElementById("fontSize");
     const fontSizeValue = document.getElementById("fontSizeValue");
+
+    const lineSpacingSelect = document.getElementById("lineSpacing");
+    const lineSpacingValue = document.getElementById("lineSpacingValue");
+
     const marginTypeSelect = document.getElementById("marginType");
     const titleSizeSelect = document.getElementById("titleSize");
     const authorSizeSelect = document.getElementById("authorSize");
+    const titleAuthorGapSelect = document.getElementById("titleAuthorGap");
+
+    const titleOffsetXInput = document.getElementById("titleOffsetX");
+    const titleOffsetXValue = document.getElementById("titleOffsetXValue");
+    const titleOffsetYInput = document.getElementById("titleOffsetY");
+    const titleOffsetYValue = document.getElementById("titleOffsetYValue");
+
     const downloadBtn = document.getElementById("downloadBtn");
     const resetBgBtn = document.getElementById("resetBgBtn");
 
@@ -360,8 +417,23 @@
       return currentY;
     }
 
-    function drawTitleAndAuthor(title, author, titleFontPx, authorFontPx, rightMarginPx, bottomMarginPx) {
+    function drawTitleAndAuthor(
+      title,
+      author,
+      titleFontPx,
+      authorFontPx,
+      rightMarginPx,
+      bottomMarginPx,
+      gapPx,
+      offsetX,
+      offsetY
+    ) {
+      const baseX = canvas.width - rightMarginPx + offsetX;
+      const authorY = HEADER_HEIGHT - bottomMarginPx + offsetY;
+      const titleY = authorY - authorFontPx - gapPx;
+
       ctx.textAlign = "right";
+      ctx.textBaseline = "alphabetic";
       ctx.fillStyle = "#ffffff";
       ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
       ctx.shadowBlur = 10;
@@ -369,12 +441,10 @@
       ctx.shadowOffsetY = 2;
 
       ctx.font = `800 ${titleFontPx}px 'Nanum Myeongjo', serif`;
-      const titleY = HEADER_HEIGHT - bottomMarginPx - authorFontPx - ptToPx(6);
-      ctx.fillText(title, canvas.width - rightMarginPx, titleY);
+      ctx.fillText(title, baseX, titleY);
 
       ctx.font = `700 ${authorFontPx}px 'Nanum Myeongjo', serif`;
-      const authorY = HEADER_HEIGHT - bottomMarginPx;
-      ctx.fillText(author, canvas.width - rightMarginPx, authorY);
+      ctx.fillText(author, baseX, authorY);
 
       ctx.shadowColor = "transparent";
       ctx.shadowBlur = 0;
@@ -392,11 +462,20 @@
       const bodyFontSizePx = ptToPx(bodyFontSizePt);
       fontSizeValue.textContent = bodyFontSizePt;
 
+      const lineSpacing = Number(lineSpacingSelect.value);
+      lineSpacingValue.textContent = lineSpacing.toFixed(2);
+
       const marginCm = Number(marginTypeSelect.value);
       const marginPx = cmToPx(marginCm);
 
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
       const authorFontPx = ptToPx(Number(authorSizeSelect.value));
+      const gapPx = ptToPx(Number(titleAuthorGapSelect.value));
+
+      const titleOffsetX = Number(titleOffsetXInput.value);
+      const titleOffsetY = Number(titleOffsetYInput.value);
+      titleOffsetXValue.textContent = titleOffsetX;
+      titleOffsetYValue.textContent = titleOffsetY;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -422,7 +501,10 @@
         titleFontPx,
         authorFontPx,
         marginPx,
-        cmToPx(0.45)
+        cmToPx(0.45),
+        gapPx,
+        titleOffsetX,
+        titleOffsetY
       );
 
       ctx.textAlign = "left";
@@ -433,7 +515,7 @@
       const textX = marginPx;
       const textY = HEADER_HEIGHT + cmToPx(0.7);
       const maxWidth = canvas.width - marginPx * 2;
-      const lineHeight = bodyFontSizePx * 1.7;
+      const lineHeight = bodyFontSizePx * lineSpacing;
 
       wrapText(bodyText, textX, textY, maxWidth, lineHeight);
 
@@ -484,11 +566,14 @@
       authorInput,
       bodyInput,
       footerInput,
-      bgImageInput,
       fontSizeSelect,
+      lineSpacingSelect,
       marginTypeSelect,
       titleSizeSelect,
-      authorSizeSelect
+      authorSizeSelect,
+      titleAuthorGapSelect,
+      titleOffsetXInput,
+      titleOffsetYInput
     ].forEach((element) => {
       element.addEventListener("input", draw);
       element.addEventListener("change", draw);
