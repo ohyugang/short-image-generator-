@@ -36,10 +36,28 @@
     .panel {
       height: 100vh;
       background: #ffffff;
-      padding: 24px;
+      padding: 18px 24px 24px;
       border-right: 1px solid #ddd;
       overflow-y: auto;
       overflow-x: hidden;
+    }
+
+    .top-author-box {
+      width: 130px;
+      margin-bottom: 14px;
+    }
+
+    .top-author-box label {
+      font-size: 11px;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .top-author-box input {
+      height: 30px;
+      padding: 5px 8px;
+      font-size: 12px;
+      border-radius: 6px;
     }
 
     .panel h1 {
@@ -169,6 +187,11 @@
 <body>
   <div class="app">
     <aside class="panel">
+      <div class="top-author-box">
+        <label for="author">작가 이름</label>
+        <input id="author" value=" " />
+      </div>
+
       <h1>단문 이미지 생성기</h1>
 
       <div class="field">
@@ -287,6 +310,7 @@
     };
 
     const HEADER_HEIGHT_CM = 6.6;
+    const PARAGRAPH_INDENT_EM = 1.0;
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
@@ -420,7 +444,7 @@
       ctx.fillRect(0, 0, canvas.width, headerHeight);
     }
 
-    function wrapText(text, x, y, maxWidth, lineHeight, bottomLimit) {
+    function wrapText(text, x, y, maxWidth, lineHeight, bottomLimit, indentPx) {
       const paragraphs = text.split("\n");
       let currentY = y;
 
@@ -433,18 +457,23 @@
         }
 
         let line = "";
+        let isFirstLine = true;
 
         for (let i = 0; i < paragraph.length; i++) {
+          const currentX = isFirstLine ? x + indentPx : x;
+          const currentMaxWidth = isFirstLine ? maxWidth - indentPx : maxWidth;
+
           const testLine = line + paragraph[i];
           const metrics = ctx.measureText(testLine);
 
-          if (metrics.width > maxWidth && line !== "") {
+          if (metrics.width > currentMaxWidth && line !== "") {
             if (currentY <= bottomLimit) {
-              ctx.fillText(line, x, currentY);
+              ctx.fillText(line, currentX, currentY);
             }
 
             line = paragraph[i];
             currentY += lineHeight;
+            isFirstLine = false;
 
             if (currentY > bottomLimit) return currentY;
           } else {
@@ -453,7 +482,8 @@
         }
 
         if (currentY <= bottomLimit) {
-          ctx.fillText(line, x, currentY);
+          const finalX = isFirstLine ? x + indentPx : x;
+          ctx.fillText(line, finalX, currentY);
         }
 
         currentY += lineHeight;
@@ -556,11 +586,12 @@
       const textY = headerHeight + bodyTopMarginPx;
       const maxWidth = canvas.width - bodyLeftMarginPx - bodyRightMarginPx;
       const lineHeight = bodyFontSizePx * lineSpacing;
+      const indentPx = bodyFontSizePx * PARAGRAPH_INDENT_EM;
 
       const footerY = canvas.height - cmToPx(0.75);
       const bottomLimit = footerY - bodyBottomMarginPx;
 
-      wrapText(bodyText, textX, textY, maxWidth, lineHeight, bottomLimit);
+      wrapText(bodyText, textX, textY, maxWidth, lineHeight, bottomLimit, indentPx);
 
       ctx.textAlign = "center";
       ctx.fillStyle = "#777777";
@@ -647,7 +678,7 @@
       const link = document.createElement("a");
       const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
 
-      link.download = `${safeTitle}_A6x1.5.png`;
+      link.download = `${safeTitle}_A6x2.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
