@@ -176,18 +176,18 @@
         <input id="title" value=" " />
       </div>
 
-   <div class="field">
-  <label for="author">작가 이름</label>
-  <input id="author" value=" " />
-</div>
+      <div class="field">
+        <label for="author">작가 이름</label>
+        <input id="author" value=" " />
+      </div>
 
-<div class="field">
-  <label for="authorColor">작가 이름 색상</label>
-  <select id="authorColor">
-    <option value="#ffffff" selected>흰색</option>
-    <option value="#111111">검은색</option>
-  </select>
-</div>
+      <div class="field">
+        <label for="authorColor">작가 이름 색상</label>
+        <select id="authorColor">
+          <option value="#ffffff" selected>흰색</option>
+          <option value="#111111">검은색</option>
+        </select>
+      </div>
 
       <div class="field">
         <label for="bodyText">본문</label>
@@ -251,14 +251,6 @@
         </div>
       </div>
 
-      <div class="field">
-  <label for="authorColor">작가 이름 색상</label>
-  <select id="authorColor">
-    <option value="#ffffff" selected>흰색</option>
-    <option value="#111111">검은색</option>
-  </select>
-</div>
-
       <button id="downloadBtn">PNG로 저장하기</button>
     </aside>
 
@@ -298,6 +290,7 @@
 
     const titleInput = document.getElementById("title");
     const authorInput = document.getElementById("author");
+    const authorColorSelect = document.getElementById("authorColor");
     const bodyInput = document.getElementById("bodyText");
     const footerInput = document.getElementById("footer");
     const bgImageInput = document.getElementById("bgImage");
@@ -314,7 +307,7 @@
 
     const bodyMarginTypeSelect = document.getElementById("bodyMarginType");
     const titleSizeSelect = document.getElementById("titleSize");
-    const authorColorSelect = document.getElementById("authorColor");
+
     const downloadBtn = document.getElementById("downloadBtn");
     const resetBgBtn = document.getElementById("resetBgBtn");
 
@@ -489,16 +482,15 @@
       ctx.shadowOffsetY = 0;
     }
 
-  function drawPageAuthor(author, authorFontPx, leftMarginPx, topMarginPx, authorColor) {
-  if (!author.trim()) return;
+    function drawPageAuthor(author, authorFontPx, leftMarginPx, topMarginPx, authorColor) {
+      if (!author.trim()) return;
 
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = authorColor;
-
-  ctx.font = `700 ${authorFontPx}px 'Nanum Myeongjo', serif`;
-  ctx.fillText(author, leftMarginPx, topMarginPx + authorFontPx);
-}
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = authorColor;
+      ctx.font = `700 ${authorFontPx}px 'Nanum Myeongjo', serif`;
+      ctx.fillText(author, leftMarginPx, topMarginPx + authorFontPx);
+    }
 
     function draw() {
       updateCanvasSize();
@@ -527,8 +519,7 @@
       const bodyLeftMarginPx = cmToPx(marginSetting.leftCm);
 
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
-     const authorFontPx = ptToPx(10);
-const authorColor = authorColorSelect.value;
+      const authorFontPx = ptToPx(12);
       const authorColor = authorColorSelect.value;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -550,13 +541,13 @@ const authorColor = authorColorSelect.value;
         cmToPx(0.35)
       );
 
-   drawPageAuthor(
-  author,
-  authorFontPx,
-  bodyLeftMarginPx - cmToPx(0.01),
-  cmToPx(0.1),
-  authorColor
-);
+      drawPageAuthor(
+        author,
+        authorFontPx,
+        bodyLeftMarginPx - cmToPx(0.3),
+        cmToPx(0.45),
+        authorColor
+      );
 
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
@@ -664,18 +655,18 @@ const authorColor = authorColorSelect.value;
       link.click();
     });
 
- [
-  titleInput,
-  authorInput,
-  bodyInput,
-  footerInput,
-  bgScaleInput,
-  fontSizeSelect,
-  lineSpacingSelect,
-  bodyMarginTypeSelect,
-  titleSizeSelect,
-  authorColorSelect
-].forEach((element) => {
+    [
+      titleInput,
+      authorInput,
+      authorColorSelect,
+      bodyInput,
+      footerInput,
+      bgScaleInput,
+      fontSizeSelect,
+      lineSpacingSelect,
+      bodyMarginTypeSelect,
+      titleSizeSelect
+    ].forEach((element) => {
       element.addEventListener("input", draw);
       element.addEventListener("change", draw);
     });
