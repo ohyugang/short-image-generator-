@@ -675,7 +675,7 @@
       const link = document.createElement("a");
       const safeTitle = (titleInput.value || "short-image").replace(/[\\/:*?"<>|]/g, "_");
 
-      link.download = `${safeTitle}_A6x2.png`;
+      link.download = `${safeTitle}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
