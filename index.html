@@ -482,14 +482,14 @@
       ctx.shadowOffsetY = 0;
     }
 
-    function drawPageAuthor(author, authorFontPx, leftMarginPx, topMarginPx, authorColor) {
+    function drawPageAuthor(author, authorFontPx, leftPx, topPx, authorColor) {
       if (!author.trim()) return;
 
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = authorColor;
       ctx.font = `700 ${authorFontPx}px 'Nanum Myeongjo', serif`;
-      ctx.fillText(author, leftMarginPx, topMarginPx + authorFontPx);
+      ctx.fillText(author, leftPx, topPx + authorFontPx);
     }
 
     function draw() {
@@ -538,13 +538,13 @@
         title,
         titleFontPx,
         bodyRightMarginPx,
-        cmToPx(0.2)
+        cmToPx(0.75)
       );
 
       drawPageAuthor(
         author,
         authorFontPx,
-        bodyLeftMarginPx - cmToPx(0.01),
+        cmToPx(0.08),
         cmToPx(0.45),
         authorColor
       );
