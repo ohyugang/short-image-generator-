@@ -176,10 +176,18 @@
         <input id="title" value=" " />
       </div>
 
-      <div class="field">
-        <label for="author">작가 이름</label>
-        <input id="author" value=" " />
-      </div>
+   <div class="field">
+  <label for="author">작가 이름</label>
+  <input id="author" value=" " />
+</div>
+
+<div class="field">
+  <label for="authorColor">작가 이름 색상</label>
+  <select id="authorColor">
+    <option value="#ffffff" selected>흰색</option>
+    <option value="#111111">검은색</option>
+  </select>
+</div>
 
       <div class="field">
         <label for="bodyText">본문</label>
@@ -241,15 +249,6 @@
             <option value="28">크게</option>
           </select>
         </div>
-      </div>
-
-      <div class="field">
-        <label for="authorSize">작가 이름 글자 크기</label>
-        <select id="authorSize">
-          <option value="10">작게</option>
-          <option value="12" selected>보통</option>
-          <option value="14">크게</option>
-        </select>
       </div>
 
       <div class="field">
@@ -315,9 +314,7 @@
 
     const bodyMarginTypeSelect = document.getElementById("bodyMarginType");
     const titleSizeSelect = document.getElementById("titleSize");
-    const authorSizeSelect = document.getElementById("authorSize");
     const authorColorSelect = document.getElementById("authorColor");
-
     const downloadBtn = document.getElementById("downloadBtn");
     const resetBgBtn = document.getElementById("resetBgBtn");
 
@@ -530,7 +527,8 @@
       const bodyLeftMarginPx = cmToPx(marginSetting.leftCm);
 
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
-      const authorFontPx = ptToPx(Number(authorSizeSelect.value));
+     const authorFontPx = ptToPx(10);
+const authorColor = authorColorSelect.value;
       const authorColor = authorColorSelect.value;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -555,7 +553,7 @@
    drawPageAuthor(
   author,
   authorFontPx,
-  bodyLeftMarginPx - cmToPx(0.1),
+  bodyLeftMarginPx - cmToPx(0.01),
   cmToPx(0.1),
   authorColor
 );
@@ -666,19 +664,18 @@
       link.click();
     });
 
-    [
-      titleInput,
-      authorInput,
-      bodyInput,
-      footerInput,
-      bgScaleInput,
-      fontSizeSelect,
-      lineSpacingSelect,
-      bodyMarginTypeSelect,
-      titleSizeSelect,
-      authorSizeSelect,
-      authorSizeSelect
-    ].forEach((element) => {
+ [
+  titleInput,
+  authorInput,
+  bodyInput,
+  footerInput,
+  bgScaleInput,
+  fontSizeSelect,
+  lineSpacingSelect,
+  bodyMarginTypeSelect,
+  titleSizeSelect,
+  authorColorSelect
+].forEach((element) => {
       element.addEventListener("input", draw);
       element.addEventListener("change", draw);
     });
