@@ -177,12 +177,12 @@
       </div>
 
       <div class="field">
-  <label for="titleColor">제목 색상</label>
-  <select id="titleColor">
-    <option value="#ffffff" selected>흰색</option>
-    <option value="#111111">검은색</option>
-  </select>
-</div>
+        <label for="titleColor">제목 색상</label>
+        <select id="titleColor">
+          <option value="#ffffff" selected>흰색</option>
+          <option value="#111111">검은색</option>
+        </select>
+      </div>
 
       <div class="field">
         <label for="author">작가 이름</label>
@@ -470,21 +470,21 @@
       return currentY;
     }
 
-function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor) {
-  const baseX = canvas.width - rightMarginPx;
-  const titleY = headerHeight - bottomMarginPx;
+    function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor) {
+      const baseX = canvas.width - rightMarginPx;
+      const titleY = headerHeight - bottomMarginPx;
 
-  ctx.textAlign = "right";
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = titleColor;
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = titleColor;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
 
-  ctx.font = `800 ${titleFontPx}px 'Nanum Myeongjo', serif`;
-  ctx.fillText(title, baseX, titleY);
-}
+      ctx.font = `800 ${titleFontPx}px 'Nanum Myeongjo', serif`;
+      ctx.fillText(title, baseX, titleY);
+    }
 
     function drawPageAuthor(author, authorFontPx, leftPx, topPx, authorColor) {
       if (!author.trim()) return;
@@ -492,6 +492,11 @@ function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = authorColor;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
       ctx.font = `700 ${authorFontPx}px 'Nanum Myeongjo', serif`;
       ctx.fillText(author, leftPx, topPx + authorFontPx);
     }
@@ -503,7 +508,9 @@ function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor
       ctx.imageSmoothingQuality = "high";
 
       const title = titleInput.value || "제목 없음";
+      const titleColor = titleColorSelect.value;
       const author = authorInput.value || "";
+      const authorColor = authorColorSelect.value;
       const bodyText = bodyInput.value || "";
       const footer = footerInput.value || "";
 
@@ -523,9 +530,7 @@ function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor
       const bodyLeftMarginPx = cmToPx(marginSetting.leftCm);
 
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
-      const titleColor = titleColorSelect.value;
       const authorFontPx = ptToPx(12);
-      const authorColor = authorColorSelect.value;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -543,7 +548,7 @@ function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor
         title,
         titleFontPx,
         bodyRightMarginPx,
-        cmToPx(0.75)
+        cmToPx(0.75),
         titleColor
       );
 
@@ -551,7 +556,7 @@ function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor
         author,
         authorFontPx,
         cmToPx(0.08),
-        cmToPx(0.35),
+        cmToPx(0.45),
         authorColor
       );
 
@@ -661,22 +666,22 @@ function drawTitle(title, titleFontPx, rightMarginPx, bottomMarginPx, titleColor
       link.click();
     });
 
-  [
-  titleInput,
-  titleColorSelect,
-  authorInput,
-  authorColorSelect,
-  bodyInput,
-  footerInput,
-  bgScaleInput,
-  fontSizeSelect,
-  lineSpacingSelect,
-  bodyMarginTypeSelect,
-  titleSizeSelect
-].forEach((element) => {
-  element.addEventListener("input", draw);
-  element.addEventListener("change", draw);
-});
+    [
+      titleInput,
+      titleColorSelect,
+      authorInput,
+      authorColorSelect,
+      bodyInput,
+      footerInput,
+      bgScaleInput,
+      fontSizeSelect,
+      lineSpacingSelect,
+      bodyMarginTypeSelect,
+      titleSizeSelect
+    ].forEach((element) => {
+      element.addEventListener("input", draw);
+      element.addEventListener("change", draw);
+    });
 
     document.fonts.ready.then(draw);
     draw();
