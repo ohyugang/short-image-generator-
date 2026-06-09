@@ -289,6 +289,7 @@
 
     const HEADER_HEIGHT_CM = 6.6;
     const PARAGRAPH_INDENT_EM = 1.0;
+    const TITLE_RIGHT_SHIFT_CM = 0.35;
 
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
@@ -396,7 +397,7 @@
     function drawDefaultTitleBackground() {
       const gradient = ctx.createLinearGradient(0, 0, 0, headerHeight);
       gradient.addColorStop(0, "#dddddd");
-      gradient.addColorStop(0.08, "#f5f5f5");
+      gradient.addColorStop(0.45, "#f5f5f5");
       gradient.addColorStop(1, "#cfcfcf");
 
       ctx.fillStyle = gradient;
@@ -416,7 +417,7 @@
     function drawHeaderOverlay() {
       const overlay = ctx.createLinearGradient(0, 0, 0, headerHeight);
       overlay.addColorStop(0, "rgba(255,255,255,0.08)");
-      overlay.addColorStop(0.08, "rgba(0,0,0,0.02)");
+      overlay.addColorStop(0.45, "rgba(0,0,0,0.02)");
       overlay.addColorStop(1, "rgba(0,0,0,0.55)");
       ctx.fillStyle = overlay;
       ctx.fillRect(0, 0, canvas.width, headerHeight);
@@ -547,7 +548,7 @@
       drawTitle(
         title,
         titleFontPx,
-        bodyRightMarginPx,
+        Math.max(0, bodyRightMarginPx - cmToPx(TITLE_RIGHT_SHIFT_CM)),
         cmToPx(0.75),
         titleColor
       );
@@ -556,7 +557,7 @@
         author,
         authorFontPx,
         cmToPx(0.08),
-        cmToPx(0.08),
+        cmToPx(0.45),
         authorColor
       );
 
