@@ -290,7 +290,12 @@
     const HEADER_HEIGHT_CM = 6.6;
     const PARAGRAPH_INDENT_EM = 1.0;
 
-    /* 제목을 더 오른쪽으로 보내고 싶으면 이 값을 키우면 돼. */
+    /*
+      제목 위치 고정용.
+      본문 여백을 보통/넓게로 바꿔도 제목은 항상 '좁게' 기준 위치에 고정됨.
+      제목을 더 오른쪽으로 보내고 싶으면 TITLE_RIGHT_SHIFT_CM 값을 키우면 돼.
+    */
+    const FIXED_TITLE_RIGHT_MARGIN_CM = BODY_MARGINS.narrow.rightCm;
     const TITLE_RIGHT_SHIFT_CM = 0.9;
 
     const canvas = document.getElementById("canvas");
@@ -535,6 +540,12 @@
       const titleFontPx = ptToPx(Number(titleSizeSelect.value));
       const authorFontPx = ptToPx(12);
 
+      const fixedTitleRightMarginPx = cmToPx(FIXED_TITLE_RIGHT_MARGIN_CM);
+      const shiftedTitleRightMarginPx = Math.max(
+        0,
+        fixedTitleRightMarginPx - cmToPx(TITLE_RIGHT_SHIFT_CM)
+      );
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = "#ffffff";
@@ -550,7 +561,7 @@
       drawTitle(
         title,
         titleFontPx,
-        Math.max(0, bodyRightMarginPx - cmToPx(TITLE_RIGHT_SHIFT_CM)),
+        shiftedTitleRightMarginPx,
         cmToPx(0.75),
         titleColor
       );
